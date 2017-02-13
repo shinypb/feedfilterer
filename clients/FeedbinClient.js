@@ -1,6 +1,6 @@
 const request = require('request');
-const FeedClient = require('./FeedClient');
-const FeedItem = require('./FeedItem');
+const FeedClient = require('../FeedClient');
+const FeedItem = require('../FeedItem');
 
 module.exports = class FeedbinClient extends FeedClient {
     constructor(username, password) {

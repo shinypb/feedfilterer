@@ -1,7 +1,7 @@
 const env = require('process').env;
 const ExcludePodcastAnnouncements = require('./rules/ExcludePodcastAnnouncements');
 const ExcludeSponsors = require('./rules/ExcludeSponsors');
-const FeedbinClient = require('./FeedbinClient');
+const FeedbinClient = require('./clients/FeedbinClient');
 const FeedFilterer = require('./FeedFilterer');
 
 if (!env.FEEDBIN_USERNAME) throw new Error('Set FEEDBIN_USERNAME environment variable');

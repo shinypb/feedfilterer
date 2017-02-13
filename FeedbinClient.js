@@ -92,7 +92,7 @@ module.exports = class FeedbinClient extends FeedClient {
     }
 
     markItemAsRead(item) {
-        return Promise.reject(new Error('Not implemented'));
+        return this.makeApiRequest('https://api.feedbin.com/v2/unread_entries.json?unread_entries=' + item.itemId, 'delete').then(() => null);
     }
 }
 

@@ -12,6 +12,7 @@ module.exports = function ExcludePodcastAnnouncements(item) {
     }
 
     if (item.title.indexOf('(Podcast)') === 0) return true;
+    if (item.title.indexOf('Podcast: ') === 0) return true;
 
     return false;
 }

@@ -10,5 +10,8 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:shinypb/feedfilterer.git"
+  },
+  "scripts": {
+      "start": "node index.js"
   }
 }

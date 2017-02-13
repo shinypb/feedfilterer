@@ -54,6 +54,7 @@ module.exports = class FeedbinClient extends FeedClient {
     getUnreadItems() {
         return this.ensureAuthenticated()
             .then(() => {
+                console.log('FeedbinClient: this is a dry-run -- items will not actually be marked as read');
                 console.log('FeedbinClient: getting list of unread items');
                 return this.makeApiRequest('https://api.feedbin.com/v2/unread_entries.json')
                     .then(({response, body}) => {

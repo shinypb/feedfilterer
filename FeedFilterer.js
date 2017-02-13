@@ -5,6 +5,7 @@ module.exports = class FeedFilterer {
 
         this.client = config.client;
         this.rules = config.rules;
+        this.isDryRun = config.isDryRun;
     }
 
     execute() {
@@ -24,7 +25,13 @@ module.exports = class FeedFilterer {
 
                     let promises = itemsToMarkAsRead.map((item) => {
                         console.log('#' + item.itemId + ' ' + item.title + ' -- ' + item.itemUrl);
-                        return this.client.markItemAsRead(item);
+
+                        if (this.isDryRun) {
+                            console.log('FeedFilterer: (not actually marking as read)');
+                            return Promise.resolve();
+                        } else {
+                            return this.client.markItemAsRead(item);
+                        }
                     });
 
                     Promise.all(promises).then(() => {

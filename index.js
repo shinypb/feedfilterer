@@ -8,9 +8,11 @@ if (!env.FEEDBIN_USERNAME) throw new Error('Set FEEDBIN_USERNAME environment var
 if (!env.FEEDBIN_PASSWORD) throw new Error('Set FEEDBIN_PASSWORD environment variable');
 let client = new FeedbinClient(env.FEEDBIN_USERNAME, env.FEEDBIN_PASSWORD);
 
+let isDryRun = (env.DRY_RUN == '1')
 let ff = new FeedFilterer({
     client: client,
     rules: [ ExcludePodcastAnnouncements, ExcludeSponsors ],
+    isDryRun: isDryRun
 });
 
 ff.execute();

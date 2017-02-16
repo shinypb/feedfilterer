@@ -1,6 +1,6 @@
 module.exports = function ExcludePodcastAnnouncements(item) {
     if (item.title.indexOf('#') >= 0) {
-        if (item.content.indexOf('This week on') >= 0 && item.content.indexOf('relay.fm') >= 0) {
+        if (item.content.indexOf('relay.fm') >= 0) {
             return true;
         }
     }

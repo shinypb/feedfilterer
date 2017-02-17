@@ -1,6 +1,9 @@
 module.exports = function ExcludePodcastAnnouncements(item) {
-    if (item.title.indexOf('#') >= 0) {
-        if (item.content.indexOf('relay.fm') >= 0) {
+    if (item.content.indexOf('relay.fm') >= 0) {
+        if (item.title.indexOf('#') >= 0) {
+            return true;
+        }
+        if (/^MPU \d+: /.test(item.title)) {
             return true;
         }
     }

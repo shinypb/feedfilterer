@@ -3,11 +3,14 @@ const FeedClient = require('../FeedClient');
 const FeedItem = require('../FeedItem');
 
 module.exports = class FeedbinClient extends FeedClient {
-    constructor(username, password) {
+    constructor(credentials) {
         super();
 
-        this.username = username;
-        this.password = password;
+        if (!credentials.username) throw new Error('Set credentials.username in configuration file');
+        if (!credentials.password) throw new Error('Set credentials.password in configuration file');
+
+        this.username = credentials.username;
+        this.password = credentials.password;
 
         this.ensureAuthenticated()
             .then(() => console.log('FeedbinClient: Credentials OK'))

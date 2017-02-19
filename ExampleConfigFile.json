@@ -1,0 +1,8 @@
+{
+  "client": "Feedbin",
+  "clientConfiguration": {
+    "username": "user@example.com",
+    "password": "hunter2"
+  }
+}
+

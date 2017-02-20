@@ -5,6 +5,12 @@ particular blog but hate when they talk about a specific topic? Write a rule to 
 out. Only want to see posts with images in them? Write a rule to filter everything else out. The
 sky's the limit.
 
+## Supported feed reading services
+
+Right now, FeedFilterer only supports FeedBin, but adding support for a new feed reading service is
+pretty straightforward (see **Extensibility**, below). Pull requests to add support for more services
+would be welcome.
+
 ## Installation
 ````
 $ npm install

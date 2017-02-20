@@ -3,6 +3,7 @@
   "clientConfiguration": {
     "username": "user@example.com",
     "password": "hunter2"
-  }
+  },
+  "rulesPath": "/path/to/your/rules/files -- omit this entirely to just look in ./rules"
 }
 

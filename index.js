@@ -26,6 +26,12 @@ if (typeof config.clientConfiguration !== 'object') {
     console.error('Configuration file should include a "clientConfiguration" value');
     process.exit(1);
 }
+if (config.hasOwnProperty('rulesPath')) {
+    if (typeof config.rulesPath !== 'string') {
+        console.error('"rulesPath" in configuration file should be a string');
+        process.exit(1);
+    }
+}
 
 // Enumerate all available clients
 const clientsPath = path.join(__dirname, 'clients');
@@ -45,7 +51,11 @@ const ClientClass = require('./clients/' + config.client + 'Client');
 let client = new ClientClass(config.clientConfiguration);
 
 // Load the rules
-const rulesPath = path.join(__dirname, 'rules');
+const rulesPath = normalizeAndExpandTildesInPath(config.rulesPath) || path.join(__dirname, 'rules');
+if (!fs.existsSync(rulesPath)) {
+    console.error('Expected to find rules at ' + rulesPath);
+    process.exit(1);
+}
 const rules = fs.readdirSync(rulesPath).filter((filename) => {
     return /\.js$/.test(filename);
 }).map((filename) => {
@@ -59,7 +69,13 @@ const rules = fs.readdirSync(rulesPath).filter((filename) => {
     return (typeof ruleFunction == 'function');
 });
 
-let isDryRun = (process.argv.includes('-d') || process.argv.includes('--dry-run'));
+const isDryRun = (process.argv.includes('-d') || process.argv.includes('--dry-run'));
+
+let rulesReadable = rules.map((rule) => rule.name).join(', ');
+console.log('Using ' + config.client + ' client');
+console.log('Loaded ' + rules.length + ' rules from ' + rulesPath + ': ' + rulesReadable);
+
+if (isDryRun) console.log('This is a dry-run');
 
 const FeedFilterer = require('./FeedFilterer');
 let ff = new FeedFilterer({
@@ -69,3 +85,13 @@ let ff = new FeedFilterer({
 });
 
 ff.execute();
+
+function normalizeAndExpandTildesInPath(filename) {
+    if (!filename) return filename;
+
+    const expandedFilename = filename.split('/').map((chunk) => {
+        return (chunk === '~') ? process.env.HOME : chunk;
+    }).join('/');
+
+    return path.normalize(expandedFilename);
+}

@@ -13,8 +13,6 @@ module.exports = class FeedFilterer {
         this.client.getUnreadItems()
             .then((items) => {
                 console.log('FeedFilterer: got ' + items.length + ' items');
-                let rulesReadable = this.rules.map((rule) => rule.name).join(', ');
-                console.log('FeedFilterer: running those items against ' + this.rules.length + ' rules (' + rulesReadable + ')');
 
                 let itemsToMarkAsRead = items.filter((item) => {
                     // console.log(item.title + ' -- ' + item.itemUrl);

@@ -27,6 +27,10 @@ This object will be passed in to the client when it is instantiated. The fields 
 will vary from client to client, but for the FeedbinClient, it should have `username` and `password`
 fields.
 
+### `rulesPath`
+Specifies the location for rules to be loaded from; if this is omitted, the rules in the
+[rules](./rules) subdirectory will be loaded.
+
 ## Usage (dry run — won't actually mark things as read)
 ````
 $ node index.js --dry-run
@@ -53,6 +57,6 @@ reading service. It should return a Promise that has been resolved when the item
 read.
 
 ## Adding new rules to mark things as read
-To add a new rule, create a new JavaScript file in the [rules](./rules) directory that exports a
+To add a new rule, create a new JavaScript file in your [rules](./rules) directory that exports a
 single function. This function should accept a `FeedItem` and return true if the item should be
 marked as read.

@@ -1,10 +1,9 @@
 # FeedFilterer
 
-FeedFilterer allows you to write rules that will mark feed items as read on your behalf. Use it to
-filterer out common things that personally you: your humble author, for example, doesn't want to see
-people's podcast announcement, because he has already subscribed to their podcasts in a different
-app. The specific things you want to skip are likely to be different than what anyone else would
-like to skip, so FeedFilterer is made to be tinkered with (see **Extensibility**, below).
+FeedFilterer allows you to write rules that will mark feed items as read on your behalf. Love a
+particular blog but hate when they talk about a specific topic? Write a rule to filter those items
+out. Only want to see posts with images in them? Write a rule to filter everything else out. The
+sky's the limit.
 
 ## Installation
 ````
@@ -26,6 +25,8 @@ file's `client` value should be `Example`.
 This object will be passed in to the client when it is instantiated. The fields that are required
 will vary from client to client, but for the FeedbinClient, it should have `username` and `password`
 fields.
+
+You can optionally include the following:
 
 ### `rulesPath`
 Specifies the location for rules to be loaded from; if this is omitted, the rules in the

@@ -93,7 +93,7 @@ module.exports = class FeedbinClient extends FeedClient {
 
                                     let feedbinEntries = JSON.parse(body);
                                     return feedbinEntries.map((feedbinEntry) => {
-                                        return new FeedItem(feedbinEntry.id, feedbinEntry.title, feedbinEntry.content, feedbinEntry.url);
+                                        return new FeedItem(feedbinEntry.id, feedbinEntry.title, feedbinEntry.content, feedbinEntry.url, feedbinEntry.author);
                                     });
                                 });
                         });
@@ -169,7 +169,7 @@ function getItemFromCache(id) {
     try {
         let jsonData = fs.readFileSync(cacheFilename).toString();
         let data = JSON.parse(jsonData);
-        return new FeedItem(data.itemId, data.title, data.content, data.itemUrl);
+        return new FeedItem(data.itemId, data.title, data.content, data.itemUrl, data.author);
     } catch (e) {
         console.warn('FeedbinClient: item #' + item.itemId + ' exists in cache but is not readable: ' + e.message);
     }
@@ -182,6 +182,7 @@ function writeItemToCache(item) {
             title: item.title,
             content: item.content,
             itemUrl: item.itemUrl,
+            author: item.author,
         });
 
         try {

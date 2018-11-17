@@ -45,7 +45,7 @@ module.exports = class FeedbinClient extends FeedClient {
 
             function callback(error, response, body) {
                 if (error) {
-                    reject(new Error('Got error when talking to API: ' + err));
+                    reject(new Error('Got error when talking to API: ' + error));
                 }
 
                 resolve({

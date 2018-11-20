@@ -3,8 +3,7 @@
 FeedFilterer allows you to write rules that will mark feed items as read on your behalf.
 
 ## Why would I ever want this?
-Maybe you subscribe to a great Apple-watching blog that goes bananas over baseball from time to time ([rule](https://gist.github.com/shinypb/c2e507e92d5453813af9bfaa8e51373e)). Maybe you're subscribed to the Pinboard "popular" RSS feed and wish the same links didn't show up
-over and over ([rule](https://gist.github.com/shinypb/80d795161ff502ab5010fb31d3ba3dd7)).
+Maybe you subscribe to a great Apple-watching blog that goes bananas over baseball from time to time ([rule](https://gist.github.com/shinypb/c2e507e92d5453813af9bfaa8e51373e)). Or maybe you're subscribed to several feeds that tend to link to the same stuff as each other and wish the same links didn't show up over and over ([rule](https://gist.github.com/shinypb/80d795161ff502ab5010fb31d3ba3dd7)).
 
 Whatever it is, FeedFilterer makes it pretty easy to exclude those items from your feed reader. The
 sky's the limit.
@@ -24,21 +23,23 @@ $ npm install
 FeedFilterer reads its configuration from `~/.feedfilterer`. You can find an example configuration
 in [ExampleConfigFile.json](./ExampleConfigFile.json).
 
+### Required configuration fields
 The configuration file requires the following fields to be present:
 
-### `client`
+#### `client`
 This is the name of one of the clients in the [clients](./clients) directory, without the `Client.js`
 suffix. For example, if you wanted to use a client called `ExampleClient.js`, your configuration
 file's `client` value should be `Example`.
 
-### `clientConfiguration`
+#### `clientConfiguration`
 This object will be passed in to the client when it is instantiated. The fields that are required
 will vary from client to client, but for the FeedbinClient, it should have `username` and `password`
 fields.
 
+### Optional configuration fields
 You can optionally include the following:
 
-### `rulesPath`
+#### `rulesPath`
 Specifies the location for rules to be loaded from; if this is omitted, the rules in the
 [rules](./rules) subdirectory will be loaded.
 

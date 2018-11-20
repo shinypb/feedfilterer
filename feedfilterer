@@ -1,5 +1,7 @@
+#!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const FeedFilterer = require('./FeedFilterer.js');
 
 // Read configuration
 const configFilePath = path.join(process.env.HOME, '.feedfilterer');
@@ -70,7 +72,7 @@ const rules = fs.readdirSync(rulesPath).filter((filename) => {
 });
 
 if (process.argv.includes('-h') || process.argv.includes('--help')) {
-    console.log('usage: node index.js [-d / --dry-run] [-h / --help] [-v / --verbose-mode]');
+    console.log('usage: ff [-d / --dry-run] [-h / --help] [-v / --verbose-mode]');
     process.exit();
 }
 
@@ -84,7 +86,6 @@ console.log('Loaded ' + rules.length + ' rules from ' + rulesPath + ': ' + rules
 if (isDryRun) console.log('This is a dry-run');
 if (verboseMode) console.log('Verbose mode enabled');
 
-const FeedFilterer = require('./FeedFilterer');
 let ff = new FeedFilterer({
     client: client,
     rules: rules,

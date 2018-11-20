@@ -87,7 +87,7 @@ console.log('Loaded ' + rules.length + ' rules from ' + rulesPath + ': ' + rules
 if (isDryRun) console.log('This is a dry-run');
 if (verboseMode) console.log('Verbose mode enabled');
 
-let ff = new FeedFilterer({
+const ff = new FeedFilterer({
     client: client,
     rules: rules,
     isDryRun: isDryRun,

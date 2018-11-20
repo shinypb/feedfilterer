@@ -1,8 +1,12 @@
 # FeedFilterer
 
-FeedFilterer allows you to write rules that will mark feed items as read on your behalf. Love a
-particular blog but hate when they talk about a specific topic? Write a rule to filter those items
-out. Only want to see posts with images in them? Write a rule to filter everything else out. The
+FeedFilterer allows you to write rules that will mark feed items as read on your behalf.
+
+## Why would I ever want this?
+Maybe you subscribe to a great Apple-watching blog that goes bananas over baseball from time to time ([rule](https://gist.github.com/shinypb/c2e507e92d5453813af9bfaa8e51373e)). Maybe you're subscribed to the Pinboard "popular" RSS feed and wish the same links didn't show up
+over and over ([rule](https://gist.github.com/shinypb/80d795161ff502ab5010fb31d3ba3dd7)).
+
+Whatever it is, FeedFilterer makes it pretty easy to exclude those items from your feed reader. The
 sky's the limit.
 
 ## Supported feed reading services
@@ -38,14 +42,20 @@ You can optionally include the following:
 Specifies the location for rules to be loaded from; if this is omitted, the rules in the
 [rules](./rules) subdirectory will be loaded.
 
-## Usage (dry run — won't actually mark things as read)
+## Usage
+
+FeedFilterer is a command line tool. Once you have it set up, you have to run it periodically to
+clear the junk out of your feeds. (Your humble author has a cronjob set up to run it every 10
+minutes during waking hours.)
+
+### Dry run (won't actually mark things as read)
 ````
-$ node index.js --dry-run
+$ ./feedfilterer --dry-run --verbose
 ````
 
-## Usage (for real — actually mark things as read)
+### For real (be careful — there's no undo)
 ````
-$ node index.js
+$ ./feedfilterer --verbose
 ````
 
 # Extensibility

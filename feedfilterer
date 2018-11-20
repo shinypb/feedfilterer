@@ -7,6 +7,7 @@ const FeedFilterer = require('./FeedFilterer.js');
 const configFilePath = path.join(process.env.HOME, '.feedfilterer');
 if (!fs.existsSync(configFilePath)) {
     console.error('Missing configuration file -- expected to find it at ' + configFilePath);
+    generateConfigFile(configFilePath);
     process.exit(1);
 }
 const configFileRawData = fs.readFileSync(configFilePath).toString();
@@ -94,6 +95,15 @@ let ff = new FeedFilterer({
 });
 
 ff.execute();
+
+function generateConfigFile(configFilePath) {
+    // TODO: make an interactive config file generator at some point
+    console.log("Here's what to put in your config file:");
+    const exampleConfig = require('./ExampleConfigFile.json');
+    const replacer = null;
+    const indentationLevel = 4;
+    console.log(JSON.stringify(exampleConfig, replacer, indentationLevel));
+}
 
 function normalizeAndExpandTildesInPath(filename) {
     if (!filename) return filename;

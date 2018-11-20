@@ -1,103 +1,167 @@
 #!/usr/bin/env node
+//
+// FeedFilterer was made with love by @shinypb, 2017 and onward
+//
+
 const fs = require('fs');
 const path = require('path');
 const FeedFilterer = require('./FeedFilterer.js');
 
-// Read configuration
-const configFilePath = path.join(process.env.HOME, '.feedfilterer');
-if (!fs.existsSync(configFilePath)) {
-    console.error('Missing configuration file -- expected to find it at ' + configFilePath);
-    generateConfigFile(configFilePath);
-    process.exit(1);
-}
-const configFileRawData = fs.readFileSync(configFilePath).toString();
+// The proper values for these will be calculated in main()
+let isDryRun = false;
+let verboseMode = true;
 
-let config;
-try {
-    config = JSON.parse(configFileRawData);
-} catch (e) {
-    console.error('Unable to parse config file: ' + e.message);
-    process.exit(1);
+function main() {
+    if (process.argv.includes('-h') || process.argv.includes('--help')) {
+        console.log('usage: ff [-d / --dry-run] [-h / --help] [-v / --verbose-mode]');
+        process.exit();
+    }
+
+    isDryRun = (process.argv.includes('-d') || process.argv.includes('--dry-run'));
+    verboseMode = (process.argv.includes('-v') || process.argv.includes('--verbose'));
+
+    if (verboseMode) console.log('Verbose mode enabled');
+    if (isDryRun) console.log('This is a dry-run');
+
+    const config = getConfiguration();
+    const client = getClient(config.client, config.clientConfiguration);
+    const rules = getRules(config.rulesPath);
+
+    const instance = new FeedFilterer({
+        client: client,
+        rules: rules,
+        isDryRun: isDryRun,
+        verboseMode: verboseMode,
+    });
+
+    instance.execute();
 }
 
-// Validate the configuration file
-if (typeof config.client !== 'string') {
-    console.error('Configuration file should include a "client" value');
-    process.exit(1);
+main();
+
+/**
+ * Finds our config file, parses it, validates it, and returns it as an object.
+ * Aborts if it's missing or invalid.
+ * @return {Object}
+*/
+function getConfiguration() {
+    // Read configuration
+    const configFilePath = path.join(process.env.HOME, '.feedfilterer');
+    if (!fs.existsSync(configFilePath)) {
+        console.error('Missing configuration file -- expected to find it at ' + configFilePath);
+        generateConfigFile(configFilePath);
+        process.exit(1);
+    }
+    const configFileRawData = fs.readFileSync(configFilePath).toString();
+
+    let config;
+    try {
+        config = JSON.parse(configFileRawData);
+    } catch (e) {
+        console.error('Unable to parse config file: ' + e.message);
+        process.exit(1);
+    }
+
+    // Validate the configuration file
+    if (typeof config.client !== 'string') {
+        console.error('Configuration file should include a "client" value');
+        process.exit(1);
+    }
+    if (typeof config.clientConfiguration !== 'object') {
+        console.error('Configuration file should include a "clientConfiguration" value');
+        process.exit(1);
+    }
+    if (config.hasOwnProperty('rulesPath')) {
+        if (typeof config.rulesPath !== 'string') {
+            console.error('"rulesPath" in configuration file should be a string');
+            process.exit(1);
+        }
+    }
+
+    return config;
 }
-if (typeof config.clientConfiguration !== 'object') {
-    console.error('Configuration file should include a "clientConfiguration" value');
-    process.exit(1);
-}
-if (config.hasOwnProperty('rulesPath')) {
-    if (typeof config.rulesPath !== 'string') {
-        console.error('"rulesPath" in configuration file should be a string');
+
+/**
+ * Returns an instance of the given feed client.
+ * @param {String} clientName - name of the client we want to instantiate; a file
+ *        with this name must exist in the ./clients directory.
+*/
+function getClient(clientName, clientConfiguration) {
+    // Be tolerant of semi-bogus inputs if possible
+    const parsedClientName = path.parse(clientName);
+    if (parsedClientName.ext.toLowerCase() === '.js') {
+        // Strip the file extension
+        return getClient(parsedClientName.name, clientConfiguration);
+    }
+
+    // Enumerate all available clients
+    const clientsPath = path.join(__dirname, 'clients');
+    const validClients = fs.readdirSync(clientsPath).filter((filename) => {
+        return /Client\.js$/.test(filename);
+    }).map((filename) => {
+        return filename.replace(/Client\.js$/, '');
+    });
+
+    // Instantiate the client we want to use
+    if (!validClients.includes(clientName)) {
+        if (/Client\.js$/.test(clientName)) {
+            // clientName might be "FooClient" when we actually want "Foo", so strip off
+            // the "Client" suffix and try again.
+            return getClient(clientName.slice(0, clientName.length - 'Client'.length), clientConfiguration);
+        }
+
+        console.error('Unable to find a client for ' + clientName + '; available clients: ' + validClients.join(', '));
+        process.exit(1);
+    }
+
+    try {
+        const ClientClass = require('./clients/' + clientName + 'Client');
+        const client = new ClientClass(clientConfiguration);
+        if (verboseMode) console.log('Using ' + clientName + ' client');
+        return client;
+    } catch (e) {
+        console.error(`Unable to instantiate ${clientName}: ${e}`);
         process.exit(1);
     }
 }
 
-// Enumerate all available clients
-const clientsPath = path.join(__dirname, 'clients');
-const validClients = fs.readdirSync(clientsPath).filter((filename) => {
-    return /Client\.js$/.test(filename);
-}).map((filename) => {
-    return filename.replace(/Client\.js$/, '');
-});
-
-// Instantiate the client we want to use
-if (!validClients.includes(config.client)) {
-    console.error('Unable to find a client for ' + config.client + '; available clients: ' + validClients.join(', '));
-    process.exit(1);
-}
-
-const ClientClass = require('./clients/' + config.client + 'Client');
-let client = new ClientClass(config.clientConfiguration);
-
-// Load the rules
-const rulesPath = normalizeAndExpandTildesInPath(config.rulesPath) || path.join(__dirname, 'rules');
-if (!fs.existsSync(rulesPath)) {
-    console.error('Expected to find rules at ' + rulesPath);
-    process.exit(1);
-}
-const rules = fs.readdirSync(rulesPath).filter((filename) => {
-    return /\.js$/.test(filename);
-}).map((filename) => {
-    try {
-        return require(path.join(rulesPath, filename));
-    } catch (e) {
-        console.warn('Unable to load rule ' + filename + '; skipping it. (Error: ' + e.message + ')');
-        return null;
+/**
+ * Returns the rules that should be applied to unread items.
+ * @param {String} rawRulesPath - non-normalized, un-expanded path to the rules
+ * @return {Function[]}
+*/
+function getRules(rawRulesPath) {
+    // Load the rules
+    const rulesPath = normalizeAndExpandTildesInPath(rawRulesPath) || path.join(__dirname, 'rules');
+    if (!fs.existsSync(rulesPath)) {
+        console.error('Expected to find rules at ' + rulesPath);
+        process.exit(1);
     }
-}).filter((ruleFunction) => {
-    return (typeof ruleFunction == 'function');
-});
+    const rules = fs.readdirSync(rulesPath).filter((filename) => {
+        return /\.js$/.test(filename);
+    }).map((filename) => {
+        try {
+            return require(path.join(rulesPath, filename));
+        } catch (e) {
+            console.warn('Unable to load rule ' + filename + '; skipping it. (Error: ' + e.message + ')');
+            return null;
+        }
+    }).filter((ruleFunction) => {
+        return (typeof ruleFunction == 'function');
+    });
 
-if (process.argv.includes('-h') || process.argv.includes('--help')) {
-    console.log('usage: ff [-d / --dry-run] [-h / --help] [-v / --verbose-mode]');
-    process.exit();
+    let rulesReadable = rules.map((rule) => rule.name).join(', ');
+    if (verboseMode) console.log('Loaded ' + rules.length + ' rules from ' + rulesPath + ': ' + rulesReadable);
+
+    return rules;
 }
 
-const isDryRun = (process.argv.includes('-d') || process.argv.includes('--dry-run'));
-const verboseMode = (process.argv.includes('-v') || process.argv.includes('--verbose'));
-
-let rulesReadable = rules.map((rule) => rule.name).join(', ');
-console.log('Using ' + config.client + ' client');
-console.log('Loaded ' + rules.length + ' rules from ' + rulesPath + ': ' + rulesReadable);
-
-if (isDryRun) console.log('This is a dry-run');
-if (verboseMode) console.log('Verbose mode enabled');
-
-const ff = new FeedFilterer({
-    client: client,
-    rules: rules,
-    isDryRun: isDryRun,
-    verboseMode: verboseMode,
-});
-
-ff.execute();
-
-function generateConfigFile(configFilePath) {
-    // TODO: make an interactive config file generator at some point
+/**
+ * Generates a config file for the user if one does not exist.
+ * Well, actually, that's a lie and it just prints out an example, but someday!
+ * @return {void}
+ */
+function generateConfigFile() {
     console.log("Here's what to put in your config file:");
     const exampleConfig = require('./ExampleConfigFile.json');
     const replacer = null;
@@ -105,6 +169,11 @@ function generateConfigFile(configFilePath) {
     console.log(JSON.stringify(exampleConfig, replacer, indentationLevel));
 }
 
+/**
+ * Normalizes the given filename, after first replacing ~ with the user's home directory.
+ * @param {String} filename
+ * @return {String} Normalized, expanded filename
+ */
 function normalizeAndExpandTildesInPath(filename) {
     if (!filename) return filename;
 

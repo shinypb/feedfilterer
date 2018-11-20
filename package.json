@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "homepage": "https://github.com/shinypb/feedfilterer",
   "dependencies": {
+    "eslint": "^5.9.0",
     "request": "^2.88.0"
   },
   "license": "MIT",
@@ -12,6 +13,7 @@
     "url": "git@github.com:shinypb/feedfilterer.git"
   },
   "scripts": {
-    "start": "node feedfilterer"
+    "start": "node feedfilterer",
+    "lint": "npx eslint feedfilterer ."
   }
 }

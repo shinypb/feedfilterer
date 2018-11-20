@@ -20,13 +20,13 @@ module.exports = class FeedbinClient extends FeedClient {
 
         this.ensureAuthenticated()
             .then(() => console.log('FeedbinClient: Credentials OK'))
-            .catch((e) => console.error('FeedbinClient: credentials rejected'));
+            .catch(() => console.error('FeedbinClient: credentials rejected'));
     }
 
     ensureAuthenticated() {
         if (!this.ensureAuthenticatedPromise) {
             this.ensureAuthenticatedPromise = this.makeApiRequest('https://api.feedbin.com/v2/authentication.json')
-                .then(({response, body}) => {
+                .then(({response}) => {
                     if (response.statusCode == 200) {
                         return null;
                     } else if (response.statusCode == 401) {
@@ -171,7 +171,7 @@ function getItemFromCache(id) {
         let data = JSON.parse(jsonData);
         return new FeedItem(data.itemId, data.title, data.content, data.itemUrl, data.author);
     } catch (e) {
-        console.warn('FeedbinClient: item #' + item.itemId + ' exists in cache but is not readable: ' + e.message);
+        console.warn('FeedbinClient: item #' + id + ' exists in cache but is not readable: ' + e.message);
     }
 }
 

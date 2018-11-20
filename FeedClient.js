@@ -14,7 +14,7 @@ module.exports = class FeedClient {
      *  @param {FeedItem} item - item to mark as unread
      *  @return {Promise} resolved when item has been marked as read
      */
-    markItemAsRead(item) {
+    markItemAsRead(item) { // eslint-disable-line no-unused-vars
         return Promise.reject(new Error('Not implemented'));
     }
 }

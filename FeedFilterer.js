@@ -6,6 +6,7 @@ module.exports = class FeedFilterer {
         this.client = config.client;
         this.rules = config.rules;
         this.isDryRun = config.isDryRun;
+        this.verboseMode = config.verboseMode;
     }
 
     execute() {
@@ -15,7 +16,9 @@ module.exports = class FeedFilterer {
                 console.log('FeedFilterer: got ' + items.length + ' items');
 
                 let itemsToMarkAsRead = items.filter((item) => {
-                    // console.log(item.title + ' -- ' + item.itemUrl);
+                    if (this.verboseMode) {
+                        console.log(`#${item.itemId} ''${(item.title || '').replace(/\s+/g, ' ').trim()}'' <${item.itemUrl}>`);
+                    }
                     return this.rules.some((rule) => rule(item));
                 });
 
@@ -23,8 +26,7 @@ module.exports = class FeedFilterer {
                     console.log('FeedFilterer: will mark ' + itemsToMarkAsRead.length + ' items as read');
 
                     let promises = itemsToMarkAsRead.map((item) => {
-                        console.log('#' + item.itemId + ' ' + item.title + ' -- ' + item.itemUrl);
-
+                        console.log('Marking item as read: #' + item.itemId + ' ' + item.title + ' ' + item.itemUrl + '\n' + item.content + '\n\n\n\n');
                         if (this.isDryRun) {
                             console.log('FeedFilterer: (not actually marking as read)');
                             return Promise.resolve();

@@ -69,19 +69,27 @@ const rules = fs.readdirSync(rulesPath).filter((filename) => {
     return (typeof ruleFunction == 'function');
 });
 
+if (process.argv.includes('-h') || process.argv.includes('--help')) {
+    console.log('usage: node index.js [-d / --dry-run] [-h / --help] [-v / --verbose-mode]');
+    process.exit();
+}
+
 const isDryRun = (process.argv.includes('-d') || process.argv.includes('--dry-run'));
+const verboseMode = (process.argv.includes('-v') || process.argv.includes('--verbose'));
 
 let rulesReadable = rules.map((rule) => rule.name).join(', ');
 console.log('Using ' + config.client + ' client');
 console.log('Loaded ' + rules.length + ' rules from ' + rulesPath + ': ' + rulesReadable);
 
 if (isDryRun) console.log('This is a dry-run');
+if (verboseMode) console.log('Verbose mode enabled');
 
 const FeedFilterer = require('./FeedFilterer');
 let ff = new FeedFilterer({
     client: client,
     rules: rules,
-    isDryRun: isDryRun
+    isDryRun: isDryRun,
+    verboseMode: verboseMode,
 });
 
 ff.execute();

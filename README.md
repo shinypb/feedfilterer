@@ -1,6 +1,6 @@
 # FeedFilterer
 
-FeedFilterer allows you to write rules that will mark feed items as read on your behalf.
+FeedFilterer allows you to write rules (JavaScript functions) that will mark feed items as read on your behalf.
 
 ## Why would I ever want this?
 Maybe you subscribe to a great Apple-watching blog that goes bananas over baseball from time to time ([rule](https://gist.github.com/shinypb/c2e507e92d5453813af9bfaa8e51373e)). Or maybe you're subscribed to several feeds that tend to link to the same stuff as each other and wish the same links didn't show up over and over ([rule](https://gist.github.com/shinypb/80d795161ff502ab5010fb31d3ba3dd7)).
